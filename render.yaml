@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: my-portfolio
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app.main:app
+    env: python
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: PYTHON_VERSION
+        value: 3.9.13

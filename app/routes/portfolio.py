@@ -22,16 +22,26 @@ def get_templates(request: Request) -> Jinja2Templates:
 async def home(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """Home page displaying featured projects and key information."""
     try:
-        # Get featured projects
-        all_projects = data_manager.get_all_projects()
-        featured_projects = [p for p in all_projects if p.featured][:3]  # Show top 3 featured
-        
-        # Get top skills
-        all_skills = data_manager.get_all_skills()
-        top_skills = sorted(all_skills, key=lambda x: x.proficiency, reverse=True)[:6]
-        
-        # Get about info
-        about_info = data_manager.get_about_info()
+        # Get data with error handling
+        try:
+            all_projects = data_manager.get_all_projects()
+            featured_projects = [p for p in all_projects if p.featured][:3]  # Show top 3 featured
+        except Exception as e:
+            logger.error(f"Error loading projects: {e}")
+            featured_projects = []
+            
+        try:
+            all_skills = data_manager.get_all_skills()
+            top_skills = sorted(all_skills, key=lambda x: x.proficiency, reverse=True)[:6]
+        except Exception as e:
+            logger.error(f"Error loading skills: {e}")
+            top_skills = []
+            
+        try:
+            about_info = data_manager.get_about_info()
+        except Exception as e:
+            logger.error(f"Error loading about info: {e}")
+            about_info = None
         
         return templates.TemplateResponse("index.html", {
             "request": request,
@@ -41,17 +51,31 @@ async def home(request: Request, templates: Jinja2Templates = Depends(get_templa
             "page_title": "Home"
         })
     except Exception as e:
-        logger.error(f"Error loading home page: {e}")
-        raise HTTPException(status_code=500, detail="Error loading home page")
+        logger.error(f"Error rendering home page: {e}")
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "error_message": "Unable to load home page content"
+        }, status_code=500)
 
 
 @router.get("/about", response_class=HTMLResponse)
 async def about(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """About page with detailed information."""
     try:
-        about_info = data_manager.get_about_info()
-        all_skills = data_manager.get_all_skills()
-        
+        # Get about info with error handling
+        try:
+            about_info = data_manager.get_about_info()
+        except Exception as e:
+            logger.error(f"Error loading about info: {e}")
+            about_info = None
+            
+        # Get skills with error handling
+        try:
+            all_skills = data_manager.get_all_skills()
+        except Exception as e:
+            logger.error(f"Error loading skills: {e}")
+            all_skills = []
+            
         # Group skills by category
         skills_by_category = {}
         for skill in all_skills:
@@ -67,8 +91,11 @@ async def about(request: Request, templates: Jinja2Templates = Depends(get_templ
             "page_title": "About"
         })
     except Exception as e:
-        logger.error(f"Error loading about page: {e}")
-        raise HTTPException(status_code=500, detail="Error loading about page")
+        logger.error(f"Error rendering about page: {e}")
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "error_message": "Unable to load about page content"
+        }, status_code=500)
 
 
 @router.get("/projects", response_class=HTMLResponse)

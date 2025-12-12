@@ -274,7 +274,12 @@ async def setup_page(request: Request, templates: Jinja2Templates = Depends(get_
     """Setup page for creating the first admin user."""
     try:
         # Check if any users exist
-        existing_users = data_manager.get_all_users()
+        try:
+            existing_users = data_manager.get_all_users()
+        except Exception as e:
+            logger.error(f"Error checking existing users: {e}")
+            existing_users = []
+            
         if existing_users:
             return RedirectResponse(url="/auth/login", status_code=303)
         
@@ -286,7 +291,10 @@ async def setup_page(request: Request, templates: Jinja2Templates = Depends(get_
         })
     except Exception as e:
         logger.error(f"Error loading setup page: {e}")
-        raise HTTPException(status_code=500, detail="Error loading setup page")
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "error_message": "Unable to load setup page"
+        }, status_code=500)
 
 
 @router.post("/setup")
@@ -295,11 +303,17 @@ async def setup_admin(
     username: str = Form(...),
     password: str = Form(...),
     confirm_password: str = Form(...),
+    templates: Jinja2Templates = Depends(get_templates)
 ):
     """Handle admin setup form submission."""
     try:
         # Check if any users exist
-        existing_users = data_manager.get_all_users()
+        try:
+            existing_users = data_manager.get_all_users()
+        except Exception as e:
+            logger.error(f"Error checking existing users: {e}")
+            existing_users = []
+            
         if existing_users:
             return RedirectResponse(url="/auth/login", status_code=303)
         
@@ -318,12 +332,19 @@ async def setup_admin(
                 status_code=303
             )
         
-        # Create user
-        user_data = UserCreate(username=username.strip(), password=password)
-        hashed_password = get_password_hash(password)
-        new_user = data_manager.create_user(user_data, hashed_password)
+        # Create user with error handling
+        try:
+            user_data = UserCreate(username=username.strip(), password=password)
+            hashed_password = get_password_hash(password)
+            new_user = data_manager.create_user(user_data, hashed_password)
+            logger.info(f"Admin user created: {new_user.username}")
+        except Exception as e:
+            logger.error(f"Error creating admin user: {e}")
+            return templates.TemplateResponse("error.html", {
+                "request": request,
+                "error_message": "Failed to create admin user"
+            }, status_code=500)
         
-        logger.info(f"Admin user created: {new_user.username}")
         return RedirectResponse(
             url="/auth/login?success=Admin user created successfully. Please log in.",
             status_code=303
@@ -331,10 +352,10 @@ async def setup_admin(
         
     except Exception as e:
         logger.error(f"Error in admin setup: {e}")
-        return RedirectResponse(
-            url="/auth/setup?error=An error occurred during setup",
-            status_code=303
-        )
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "error_message": "An unexpected error occurred during setup"
+        }, status_code=500)
 
 
 @router.get("/me")
