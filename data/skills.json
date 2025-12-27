@@ -134,6 +134,13 @@
       "years_experience": 2,
       "icon": "ml-icon.svg",
       "description": "scikit-learn, pandas, numpy for predictive modeling"
+    },
+    {
+      "name": "GraphQLGraphQL landscapes",
+      "category": "API Development landscapes",
+      "proficiency": 80,
+      "icon": "Award",
+      "id": "e13350eb-bfc4-467e-a5c5-48d1852fc507"
     }
   ]
 }

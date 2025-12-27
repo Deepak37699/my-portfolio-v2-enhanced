@@ -68,7 +68,7 @@
       "email": "test@example.com",
       "subject": "API Test",
       "message": "This is a test message from automated testing",
-      "created_date": "2025-06-04 16:16:48.035599",
+      "created_date": "2025-06-04T16:16:48.035599",
       "is_read": false,
       "status": "unread"
     },
@@ -78,7 +78,7 @@
       "email": "test@example.com",
       "subject": "API Test",
       "message": "This is a test message from automated testing",
-      "created_date": "2025-06-04 16:33:46.149054",
+      "created_date": "2025-06-04T16:33:46.149054",
       "is_read": false,
       "status": "unread"
     },
@@ -88,7 +88,7 @@
       "email": "test@example.com",
       "subject": "API Test",
       "message": "This is a test message from automated testing",
-      "created_date": "2025-06-04 16:35:01.365026",
+      "created_date": "2025-06-04T16:35:01.365026",
       "is_read": false,
       "status": "unread"
     },
@@ -98,7 +98,7 @@
       "email": "test@example.com",
       "subject": "API Test",
       "message": "This is a test message from automated testing",
-      "created_date": "2025-06-04 16:37:22.233829",
+      "created_date": "2025-06-04T16:37:22.233829",
       "is_read": false,
       "status": "unread"
     }
